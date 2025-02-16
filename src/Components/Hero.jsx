@@ -30,7 +30,7 @@ export default function Hero() {
   return (
     <div className="relative w-full h-screen overflow-hidden">
       {/* Timer placed at top center over the image */}
-      <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-20">
+      <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-0">
         <Timer />
       </div>
 

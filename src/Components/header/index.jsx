@@ -6,7 +6,7 @@ import { getAuth, onAuthStateChanged } from "firebase/auth";
 import logo from "../../assets/Logo.png";
 import { FaSearch, FaBars, FaTimes, FaUserFriends } from "react-icons/fa";
 import { auth } from "../../firebase/Firebase";
-import { doc, deleteDoc } from "firebase/firestore";
+import { doc, getDoc, deleteDoc } from "firebase/firestore";
 import { db } from "../../firebase/Firebase";
 import { EmailAuthProvider, reauthenticateWithCredential, deleteUser } from "firebase/auth";
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button } from "@mui/material";
@@ -33,42 +33,53 @@ const Header = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [deletePassword, setDeletePassword] = useState("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [adminText, setAdminText] = useState("");
+
 
   useEffect(() => {
-    if (userLoggedIn && auth.currentUser) {
-      const firestore = getFirestore();
-      const currentUserId = auth.currentUser.uid;
+  if (userLoggedIn && auth.currentUser) {
+    const firestore = getFirestore();
+    const currentUserId = auth.currentUser.uid;
 
-      const incomingRequestsQuery = query(
-        collection(firestore, "friendRequests"),
-        where("recipientId", "==", currentUserId),
-        where("status", "==", "pending")
-      );
+    const incomingRequestsQuery = query(
+      collection(firestore, "friendRequests"),
+      where("recipientId", "==", currentUserId),
+      where("status", "==", "pending")
+    );
 
-      const getUserLoggedIn = onAuthStateChanged(auth, (user) => {
-        if (user) {
-          const email = user.email;
-          console.log("User email:", email);
-          setLoggedUser(email.split("@")[0]);
-        } else {
-          console.log("User is signed out");
-        }
-      });
+    const getUserLoggedIn = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        const email = user.email;
+        console.log("User email:", email);
+        setLoggedUser(email.split("@")[0]);
+      } else {
+        console.log("User is signed out");
+      }
+    });
 
-      const unsubscribe = onSnapshot(incomingRequestsQuery, (querySnapshot) => {
-        const requests = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setIncomingRequests(requests);
-      });
+    const unsubscribe = onSnapshot(incomingRequestsQuery, (querySnapshot) => {
+      const requests = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setIncomingRequests(requests);
+    });
 
-      return () => {
-        unsubscribe();
-        getUserLoggedIn();
-      };
-    }
-  }, [userLoggedIn, auth]);
+    const fetchAdminText = async () => {
+      const userDoc = await getDoc(doc(firestore, "users", currentUserId));
+      if (userDoc.exists() && userDoc.data().adminTexts) {
+        setAdminText(userDoc.data().adminTexts);
+      }
+    };
+
+    fetchAdminText();
+
+    return () => {
+      unsubscribe();
+      getUserLoggedIn();
+    };
+  }
+}, [userLoggedIn, auth]);
 
   const handleMouseLeave = () => {
     setShowDropdown(false);
@@ -216,12 +227,20 @@ const Header = () => {
                     {incomingRequests.length}
                   </span>
                 )}
+                {adminText && (
+                  // <span className="absolute right-0 top-0 h-3 w-3 rounded-full bg-red-500 animate-ping"></span>
+                  <span
+                    className={`absolute right-0 top-0 block h-6 w-6 rounded-full bg-red-700 animate-pulse text-white text-xs flex items-center justify-center ${
+                      isMobileMenuOpen ? "top-5" : "top-0"
+                    } `}
+                  ></span>
+                )}
               </button>
               <div className="relative w-full lg:w-auto">
                 <button
                   className={`flex items-center text-lg transition ease-in-out px-4 py-2 duration-1000 hover:text-xl w-full lg:w-auto ${
                     isMobileMenuOpen
-                      ? "border-b-2 py-4 border-indigo-200 text-orange-100 "
+                      ? "border-b-2 py-4 border-indigo-200 text-orange-100"
                       : "text-white"
                   } `}
                   onClick={() => setShowDropdown(!showDropdown)}
@@ -240,7 +259,7 @@ const Header = () => {
                     className="absolute lg:right-0 mt-2 py-2 px-2 bg-white rounded-md shadow-lg w-full lg:w-48"
                   >
                     <div className="block px-4 py-2 text-gray-800 w-full text-center bg-gray-200">
-                      Hi! {loggedUser}
+                      Hello! {loggedUser}
                     </div>
                     <div className="border-t border-gray-200 my-2"></div>
                     <button

@@ -184,8 +184,8 @@ const FriendRequests = () => {
     </div>
   );
 
-    return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50 p-4 md:p-6">
+  return (
+    <div className="min-h-screen h-screen overflow-y-auto bg-gradient-to-br from-orange-50 via-white to-orange-50 p-4 md:p-6">
       <div className="max-w-7xl mx-auto">
         {adminTexts && (
           <div className="relative mb-8">
@@ -218,6 +218,6 @@ const FriendRequests = () => {
       </div>
     </div>
   );
-  };
-  
-  export default FriendRequests;
+};
+
+export default FriendRequests;
