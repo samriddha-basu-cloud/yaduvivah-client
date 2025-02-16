@@ -1,0 +1,30 @@
+/* shimmer.css */
+.shimmer-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.shimmer {
+  width: 100px;
+  height: 100px;
+  background: linear-gradient(
+    to right,
+    #f6f7f8 0%,
+    #edeef1 20%,
+    #f6f7f8 40%,
+    #f6f7f8 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite linear;
+  border-radius: 8px;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
