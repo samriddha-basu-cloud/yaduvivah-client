@@ -15,6 +15,7 @@ import {
 const FriendRequests = () => {
   const [incomingRequests, setIncomingRequests] = useState([]);
   const [outgoingRequests, setOutgoingRequests] = useState([]);
+  const [adminTexts, setAdminTexts] = useState("");
   const auth = getAuth();
   const firestore = getFirestore();
   const currentUserId = auth.currentUser ? auth.currentUser.uid : null;
@@ -35,6 +36,17 @@ const FriendRequests = () => {
   };
 
   useEffect(() => {
+    const fetchAdminTexts = async () => {
+      if (currentUserId) {
+        const userDoc = await getDoc(doc(firestore, "users", currentUserId));
+        if (userDoc.exists() && userDoc.data().adminTexts) {
+          setAdminTexts(userDoc.data().adminTexts);
+        }
+      }
+    };
+
+    fetchAdminTexts();
+
     const incomingRequestsQuery = query(
       collection(firestore, "friendRequests"),
       where("recipientId", "==", currentUserId),
@@ -112,64 +124,100 @@ const FriendRequests = () => {
       console.error("Error rejecting friend request:", error);
     }
   };
-  console.log(incomingRequests);
+
   const RequestCard = ({ title, requests, onAccept, onReject }) => (
-    <div className="bg-white rounded-lg shadow-lg p-6 flex-1 min-w-[300px]">
-      <h3 className="text-xl font-semibold mb-4 text-indigo-700">{title}</h3>
-      {requests.length === 0 ? (
-        <p className="text-gray-500 italic">No {title.toLowerCase()}.</p>
-      ) : (
-        <ul className="space-y-3">
-          {requests.map((request) => (
-            <li
-              key={request.id}
-              className="bg-indigo-50 rounded-md p-4 transition-all hover:shadow-md"
-            >
-              <p className="font-medium text-indigo-900 mb-2">
-                {title === "Incoming Requests" ? "From: " : "To: "}
-                {request.senderName || request.recipientName}
+    <div className="w-full md:w-1/2 p-4">
+      <div className="bg-white rounded-xl shadow-lg overflow-hidden transform transition-all duration-300 hover:shadow-xl">
+        <div className="bg-gradient-to-r from-orange-400 to-orange-500 px-6 py-4">
+          <h3 className="text-xl font-bold text-white">{title}</h3>
+        </div>
+        <div className="p-6">
+          {requests.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-8">
+              <div className="text-orange-400 text-4xl mb-4">📭</div>
+              <p className="text-gray-500 text-center">
+                No {title.toLowerCase()} at the moment
               </p>
-              {onAccept && onReject && (
-                <div className="flex space-x-2 mt-2">
-                  <button
-                    onClick={() => onAccept(request.id)}
-                    className="bg-green-500 hover:bg-green-600 text-white font-bold py-1 px-3 rounded text-sm transition-colors duration-200"
-                  >
-                    Accept
-                  </button>
-                  <button
-                    onClick={() => onReject(request.id)}
-                    className="bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-3 rounded text-sm transition-colors duration-200"
-                  >
-                    Reject
-                  </button>
-                </div>
-              )}
-            </li>
-          ))}
-        </ul>
-      )}
+            </div>
+          ) : (
+            <ul className="space-y-4">
+              {requests.map((request) => (
+                <li
+                  key={request.id}
+                  className="bg-gradient-to-r from-orange-50 to-white rounded-lg p-4 border border-orange-100 transition-all duration-300 hover:shadow-md"
+                >
+                  <div className="flex items-center mb-3">
+                    <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center text-orange-500 font-bold mr-3">
+                      {(request.senderName?.[0] || request.recipientName?.[0] || "?").toUpperCase()}
+                    </div>
+                    <div>
+                      <p className="font-semibold text-gray-800">
+                        {request.senderName || request.recipientName}
+                      </p>
+                      <p className="text-sm text-gray-500">
+                        {title === "Incoming Requests" ? "Wants to connect" : "Request sent"}
+                      </p>
+                    </div>
+                  </div>
+                  {onAccept && onReject && (
+                    <div className="flex space-x-2 mt-2">
+                      <button
+                        onClick={() => onAccept(request.id)}
+                        className="flex-1 bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200"
+                      >
+                        Accept
+                      </button>
+                      <button
+                        onClick={() => onReject(request.id)}
+                        className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-4 rounded-lg transition-colors duration-200"
+                      >
+                        Decline
+                      </button>
+                    </div>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </div>
     </div>
   );
 
-  return (
-    <div className="w-full h-full overflow-y-auto bg-gradient-to-br from-indigo-100 to-orange-100 p-6">
-      <div className="max-w-6xl mx-auto">
-        <h2 className="text-3xl font-bold mb-6 text-center text-indigo-800">
+    return (
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50 p-4 md:p-6">
+      <div className="max-w-7xl mx-auto">
+        {adminTexts && (
+          <div className="relative mb-8">
+            <div className="absolute inset-0 bg-orange-600 rounded-xl shadow-xl animate-pulse opacity-90"></div>
+            <div className="relative bg-white rounded-xl shadow-lg p-6 border-2 border-orange-600">
+              <h2 className="text-2xl font-bold text-center text-orange-600 mb-4">
+                Message from Admin
+              </h2>
+              <p className="text-center text-gray-700 leading-relaxed text-xl font-semibold">
+                {adminTexts}
+              </p>
+            </div>
+          </div>
+        )}
+        <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-800 mb-8">
           Friend Requests
         </h2>
-        <div className="flex flex-col lg:flex-row space-y-6 lg:space-y-0 lg:space-x-6">
+        <div className="flex flex-wrap -mx-4">
           <RequestCard
             title="Incoming Requests"
             requests={incomingRequests}
             onAccept={handleAcceptRequest}
             onReject={handleRejectRequest}
           />
-          <RequestCard title="Outgoing Requests" requests={outgoingRequests} />
+          <RequestCard 
+            title="Outgoing Requests" 
+            requests={outgoingRequests} 
+          />
         </div>
       </div>
     </div>
   );
-};
-
-export default FriendRequests;
+  };
+  
+  export default FriendRequests;
