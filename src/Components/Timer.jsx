@@ -9,6 +9,7 @@ function Timer() {
   const [loading, setLoading] = useState(true);
   const [showAnalog, setShowAnalog] = useState(false);
   const [timeValues, setTimeValues] = useState({ hours: 0, minutes: 0, seconds: 0 });
+  const [userLoggedIn, setUserLoggedIn] = useState(false);
   const auth = getAuth();
   const db = getFirestore();
 
@@ -18,6 +19,7 @@ function Timer() {
     const fetchCreatedAtAndStartTimer = async () => {
       onAuthStateChanged(auth, async (user) => {
         if (user) {
+          setUserLoggedIn(true);
           try {
             const userDocRef = doc(db, "users", user.uid);
             const userDocSnap = await getDoc(userDocRef);
@@ -52,6 +54,8 @@ function Timer() {
           } catch (error) {
             console.error("Error fetching user data:", error);
           }
+        } else {
+          setUserLoggedIn(false);
         }
         setLoading(false);
       });
@@ -61,11 +65,13 @@ function Timer() {
 
     return () => clearInterval(timerInterval);
   }, [auth, db]);
-  if (loading || timerExpired) return null;
+
+  if (loading || timerExpired || !userLoggedIn) return null;
+
   return (
     <div className="flex justify-center items-center">
-      <div className="relative group">
-        <div className="bg-gradient-to-br from-white/10 to-white/30 backdrop-blur-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 p-8 mt-24 border border-white/20">
+      <div className="relative group sm:fixed sm:bottom-0 sm:w-full sm:px-4 sm:pb-4">
+        <div className="bg-gradient-to-br from-white/10 to-white/30 backdrop-blur-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 p-8 mt-24 sm:mt-0 border border-white/20">
           <div className="flex flex-col items-center space-y-4">
             <button
               onClick={() => setShowAnalog(!showAnalog)}
@@ -91,4 +97,5 @@ function Timer() {
     </div>
   );
 }
+
 export default Timer;
