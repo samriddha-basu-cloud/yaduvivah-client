@@ -140,55 +140,55 @@ const FriendsList = ({ onClose }) => {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-[#f49d3f]"></div>
+        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-orange-500"></div>
       </div>
     );
   }
 
   return (
-    <div className="bg-gradient-to-br from-indigo-100 to-orange-100 p-8 max-w-md mx-auto">
+    <div className="bg-white p-6 rounded-xl shadow-inner max-w-md mx-auto">
       <div className="mb-8">
-        <h2 className="text-2xl font-bold text-[#f49d3f] flex items-center mb-4">
-          <FaUserFriends className="mr-2" />
+        <h2 className="text-2xl font-bold text-blue-700 flex items-center mb-6 pb-2 border-b-2 border-orange-300">
+          <FaUserFriends className="mr-3 text-orange-500" />
           Your Connections
         </h2>
         {friends.length === 0 ? (
-          <p className="text-gray-600 text-center py-4">
-            You have no connections yet.
-          </p>
+          <div className="text-gray-500 text-center py-8 px-4 bg-blue-50 rounded-lg border border-blue-100">
+            <p>You have no connections yet.</p>
+          </div>
         ) : (
-          <ul className="space-y-4">
+          <ul className="space-y-3">
             {friends.map((friend) => (
               <li
                 key={friend.id}
-                className="p-4 bg-gradient-to-r from-orange-100 to-orange-200 rounded-lg transition-all duration-300 hover:shadow-md"
+                className="p-4 bg-gradient-to-r from-blue-50 to-white rounded-xl border border-blue-100 transition-all duration-300 hover:shadow-md"
               >
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-gray-800 font-medium">
+                <div className="flex justify-between items-center">
+                  <span className="text-blue-800 font-medium text-lg">
                     {friend.name}
                   </span>
                   {blockingId !== friend.id ? (
                     <button
                       onClick={() => setBlockingId(friend.id)}
-                      className="flex items-center bg-red-500 text-white px-3 py-2 rounded-full hover:bg-red-600 transition-colors duration-200"
+                      className="flex items-center bg-white text-red-500 border border-red-300 px-3 py-2 rounded-full hover:bg-red-50 transition-colors duration-200 shadow-sm"
                     >
-                      <FaUserSlash className="mr-1" />
-                      Block!
+                      <FaUserSlash className="mr-2" />
+                      Block
                     </button>
                   ) : (
                     <div className="flex space-x-2">
                       <button
                         onClick={() => handleBlockConfirm(friend.id, friend.friendId, friend.name)}
-                        className="flex items-center bg-green-500 text-white px-3 py-2 rounded-full hover:bg-green-600 transition-colors duration-200"
+                        className="flex items-center bg-white text-green-600 border border-green-300 px-3 py-2 rounded-full hover:bg-green-50 transition-colors duration-200 shadow-sm"
                       >
-                        <FaCheck className="mr-1" />
+                        <FaCheck className="mr-2" />
                         Confirm
                       </button>
                       <button
                         onClick={() => setBlockingId(null)}
-                        className="flex items-center bg-gray-500 text-white px-3 py-2 rounded-full hover:bg-gray-600 transition-colors duration-200"
+                        className="flex items-center bg-white text-gray-600 border border-gray-300 px-3 py-2 rounded-full hover:bg-gray-50 transition-colors duration-200 shadow-sm"
                       >
-                        <FaTimes className="mr-1" />
+                        <FaTimes className="mr-2" />
                         Cancel
                       </button>
                     </div>
@@ -201,30 +201,30 @@ const FriendsList = ({ onClose }) => {
       </div>
 
       <div>
-        <h2 className="text-2xl font-bold text-[#f49d3f] flex items-center mb-4">
-          <FaUserSlash className="mr-2" />
+        <h2 className="text-2xl font-bold text-blue-700 flex items-center mb-6 pb-2 border-b-2 border-orange-300">
+          <FaUserSlash className="mr-3 text-orange-500" />
           Blocked Users
         </h2>
         {blockedUsers.length === 0 ? (
-          <p className="text-gray-600 text-center py-4">
-            You haven't blocked any users.
-          </p>
+          <div className="text-gray-500 text-center py-8 px-4 bg-blue-50 rounded-lg border border-blue-100">
+            <p>You haven't blocked any users.</p>
+          </div>
         ) : (
-          <ul className="space-y-4">
+          <ul className="space-y-3">
             {blockedUsers.map((user) => (
               <li
                 key={user.id}
-                className="flex justify-between items-center p-4 bg-gradient-to-r from-red-100 to-red-200 rounded-lg transition-all duration-300 hover:shadow-md"
+                className="flex justify-between items-center p-4 bg-gradient-to-r from-orange-50 to-white rounded-xl border border-orange-100 transition-all duration-300 hover:shadow-md"
               >
-                <span className="text-gray-800 font-medium">
+                <span className="text-blue-800 font-medium text-lg">
                   {user.name}
                 </span>
                 <button
                   onClick={() => handleUnblock(user.id, user.blockedId)}
-                  className="flex items-center bg-green-500 text-white px-3 py-2 rounded-full hover:bg-green-600 transition-colors duration-200"
+                  className="flex items-center bg-white text-blue-600 border border-blue-300 px-3 py-2 rounded-full hover:bg-blue-50 transition-colors duration-200 shadow-sm"
                 >
-                  <FaUserPlus className="mr-1" />
-                   Send Request
+                  <FaUserPlus className="mr-2" />
+                  Send Request
                 </button>
               </li>
             ))}
